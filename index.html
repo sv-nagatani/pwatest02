@@ -5,6 +5,7 @@
 </head>
 
 <body>
+	<span id='perm'>権限不許可</span><br>
 	<span id='locs'></span>
 
 </body>
@@ -19,15 +20,16 @@ document.addEventListener("DOMContentLoaded", function() {
 		});
 	}
 
-	// バックグラウンド同期の権限確認
-	navigator.permissions.query({ name: "periodic-background-sync" }).then((result) => {
-		if (result.state === "granted") {
-
-		} else if (result.state === "prompt") {
-
-		}
-		// 権限が拒否された場合は何もしないでください。
-	});
+//	// バックグラウンド同期の権限確認
+//	navigator.permissions.query({ name: "periodic-background-sync" }).then((result) => {
+//		const elem = document.getElementById("perm");
+//		if (result.state === "granted") {
+//			elem.innerHTML = "権限許可(granted)";
+//		} else if (result.state === "prompt") {
+//			elem.innerHTML = "権限許可(prompt)";
+//		}
+//		// 権限が拒否された場合は何もしないでください。
+//	});
 
 	// 定期的なバックグラウンド同期処理が可能か確認
 	navigator.serviceWorker.ready.then(registration => {
@@ -39,6 +41,8 @@ document.addEventListener("DOMContentLoaded", function() {
 	    }
 	});
 
+	registerPeriodicSync();
+
 	// 初回表示処理
 	dispLocation();
 
@@ -46,12 +50,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // 定期的な同期処理を登録する
 async function registerPeriodicSync() {
+	const registration = await navigator.serviceWorker.ready;
 	await registration.periodicSync.register('get-location', {
 		minInterval: 5 * 1000
     });
 }
 
-// 定期的な同期処理の実行
+// 定期的な同期処理の待ち受け
 self.addEventListener('periodicsync', event => {
 	if (event.tag === 'get-location') {
 		event.waitUntil(dispLocation());
