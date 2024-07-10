@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	}
 
 	// バックグラウンド同期の権限確認
-	const status = await navigator.permissions.query({name: 'periodic-background-sync'});
+	const status = navigator.permissions.query({name: 'periodic-background-sync'});
 	if (status.state === 'granted') {
 		// Periodic background sync can be used.
 	} else {
