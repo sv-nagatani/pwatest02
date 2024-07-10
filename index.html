@@ -20,13 +20,14 @@ document.addEventListener("DOMContentLoaded", function() {
 	}
 
 	// バックグラウンド同期の権限確認
-	const status = navigator.permissions.query({name: 'periodic-background-sync'});
-	if (status.state === 'granted') {
-		// Periodic background sync can be used.
-	} else {
-		// Periodic background sync cannot be used.
-		alert("再起動して同期権限の許可を設定してください。");
-	}
+	navigator.permissions.query({ name: "periodic-background-sync" }).then((result) => {
+		if (result.state === "granted") {
+
+		} else if (result.state === "prompt") {
+
+		}
+		// 権限が拒否された場合は何もしないでください。
+	});
 
 	// 定期的なバックグラウンド同期処理が可能か確認
 	navigator.serviceWorker.ready.then(registration => {
