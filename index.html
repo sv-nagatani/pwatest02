@@ -1,0 +1,101 @@
+<html>
+
+<head>
+	<link rel="manifest" href="manifest.json" />
+</head>
+
+<body>
+	<span id='locs'></span>
+
+</body>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+	
+	// Service Worker有効化
+	if ('serviceWorker' in navigator) {
+		window.addEventListener("load", function () {
+			navigator.serviceWorker.register('./assets/js/sw.js');
+		});
+	}
+
+//	// バックグラウンド同期の権限確認
+//	const status = await navigator.permissions.query({name: 'periodic-background-sync'});
+//	if (status.state === 'granted') {
+//		// Periodic background sync can be used.
+//	} else {
+//		// Periodic background sync cannot be used.
+//		alert("再起動して同期権限の許可を設定してください。");
+//	}
+
+	// 定期的なバックグラウンド同期処理が可能か確認
+	navigator.serviceWorker.ready.then(registration => {
+		if (registration.periodicSync) {
+			// Periodic Background Sync is supported.
+		} else {
+			// Periodic Background Sync isn't supported.
+			alert("定期的な同期処理ができません。");
+	    }
+	});
+
+	// 初回表示処理
+	dispLocation();
+
+}, false);
+
+// 定期的な同期処理を登録する
+async function registerPeriodicSync() {
+	await registration.periodicSync.register('get-location', {
+		minInterval: 5 * 1000
+    });
+}
+
+// 定期的な同期処理の実行
+self.addEventListener('periodicsync', event => {
+	if (event.tag === 'get-location') {
+		event.waitUntil(dispLocation());
+	}
+});
+
+function dispLocation() {
+	// 位置情報の取得
+	if (navigator.geolocation) {	// Geolocation APIが使用可能
+		navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+	}
+}
+
+// 位置情報取得完了時の処理
+function successCallback(position) {
+	// 緯度
+	const gllatitude = position.coords.latitude;
+	// 経度
+	const gllongitude = position.coords.longitude;
+	// 緯度・経度の精度
+	const glaccuracy = position.coords.accuracy;
+	// GPS 高度
+	const glaltitude = position.coords.altitude;
+	// GPS 高度の精度
+	const glaltitudeAccuracy = position.coords.altitudeAccuracy;
+	// 移動方向
+	const glheading = position.coords.heading;
+	// 移動速度
+	const glspeed = position.coords.speed;
+	// タイムスタンプ
+	var gltimestamp =  position.timestamp;
+	if( typeof(gltimestamp) == "number" ) {
+		gltimestamp = new Date(gltimestamp);
+	}
+	const d = new Date();
+	const elem = document.getElementById("locs");
+	elem.innerHTML = d.toLocaleDateString("ja-JP") + " " + d.toLocaleTimeString("ja-JP") + " " + gllatitude + "-" + gllongitude + "<br>" + elem.innerHTML;
+}
+
+// 位置情報取得失敗時の処理
+function errorCallback() {
+	const d = new Date();
+	const elem = document.getElementById("locs");
+	elem.innerHTML = d.toLocaleDateString("ja-JP") + " " + d.toLocaleTimeString("ja-JP") + " 位置情報取得失敗<br>" + elem.innerHTML;
+}
+</script>
+
+</html>
