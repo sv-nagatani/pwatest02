@@ -18,3 +18,15 @@ self.addEventListener('fetch', function (event) {
     })
   );
 });
+
+// 定期的な同期処理の待ち受け
+self.addEventListener('periodicsync', event => {
+	if (event.tag === 'get-location') {
+		//event.waitUntil(dispLocation());
+		event.waitUntil(test());
+	}
+});
+
+function test() {
+	alert("test!");
+}
